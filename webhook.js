@@ -1,32 +1,20 @@
-export default async function handler(req, res) {
-  const VERIFY_TOKEN = "meutoken123";
+export default function handler(req, res) {
+  // 1. Validação do Facebook (Método GET)
+  if (req.method === 'GET') {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
 
-  if (req.method === "GET") {
-    const mode = req.query["hub.mode"];
-    const token = req.query["hub.verify_token"];
-    const challenge = req.query["hub.challenge"];
-
-    if (mode === "subscribe" && token === VERIFY_TOKEN) {
-      res.setHeader("Content-Type", "text/plain");
+    // Substitua 'MEU_TOKEN_SECRETO' pelo que você definir no Meta
+    if (mode === 'subscribe' && token === 'meutoken123') {
       return res.status(200).send(challenge);
-    } else {
-      return res.status(403).send("Forbidden");
     }
+    return res.status(403).send('Token inválido');
   }
 
-  if (req.method === "POST") {
-    console.log("Evento recebido:", req.body);
-
-    await fetch("https://system-design-project-0edae.goskip.app/webhook/whatsapp-inbox", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(req.body)
-    });
-
-    return res.status(200).send("OK");
+  // 2. Recebimento de dados (Método POST)
+  if (req.method === 'POST') {
+    console.log('Dados recebidos:', req.body);
+    return res.status(200).send('EVENT_RECEIVED');
   }
-
-  return res.status(405).send("Method Not Allowed");
 }
